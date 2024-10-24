@@ -14,6 +14,10 @@ powder_button = pygame.rect.Rect(10,710,100,30)
 powder_text= font.render("Powder",True,(0,0,0))
 water_button = pygame.rect.Rect(120,710,100,30)
 water_text = font.render("Liquid",True,(0,0,0))
+fire_button = pygame.rect.Rect(230,710,100,30)
+fire_text = font.render("Fire",True,(0,0,0))
+oil_button = pygame.rect.Rect(340,710,100,30)
+oil_text = font.render("Oil",True,(0,0,0))
 
 fps = 30
 
@@ -34,6 +38,10 @@ while running:
                 draw_type=powder
             elif water_button.collidepoint(pos):
                 draw_type=liquid
+            elif fire_button.collidepoint(pos):
+                draw_type=fire
+            elif oil_button.collidepoint(pos):
+                draw_type=oil
         elif event.type == pygame.MOUSEBUTTONUP:
             mouse_down=False
     
@@ -53,6 +61,10 @@ while running:
     screen.blit(powder_text,(15,715))
     pygame.draw.rect(screen,(13,87,166),water_button)
     screen.blit(water_text,(125,715))
+    pygame.draw.rect(screen,(227,100,25),fire_button)
+    screen.blit(fire_text,(235,715))
+    pygame.draw.rect(screen,(64, 31, 0),oil_button)
+    screen.blit(oil_text,(345,715))
     
     universe.tick()
 
