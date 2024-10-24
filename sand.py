@@ -175,7 +175,7 @@ class fire(empty):
         
         self.ticks+=1
         if self.ticks >= self.lifespan:
-            self=empty(self.x,self.y)
+            universe.grid[self.y][self.x]=empty(self.x,self.y)
         
         dx=rand_dir()
         dy=-1 if self.y > 0 else 0
