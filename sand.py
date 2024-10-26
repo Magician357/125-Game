@@ -19,12 +19,12 @@ class empty:
         self.density = -1     # The density of the cell
         self.x, self.y = x,y  # Save position
         self.clock = 0        # Current cycle. Used to ensure the pixel is checked only once per frame.
-        self.name  = "air"
-        self.temp=21
-        self.burning=False
-        self.burn_ticks = 0
-        self.burn_max = 10
-        self.heat_transfer=0
+        self.name  = "air"    # Name, used for debug.
+        self.temp=21          # Temperature
+        self.burning=False    # If it is burning
+        self.burn_ticks = 0   # How long it has been burning for
+        self.burn_max = 10    # How long it can burn for
+        self.heat_transfer=0  # unused
     def tick(self):
         if self.y > 0 \
             and universe.grid[self.y-1][self.x].density == -1\
@@ -230,11 +230,13 @@ class powder(empty):
             self.swap(dir,0)
             return
         
+        # Activate or deactivate based on temp
         temp_diff = abs(21-self.temp)
-        
         if temp_diff < 5:
+            # cool enough to deactivate
             universe.active.remove((self.x,self.y))
         elif temp_diff > 20:
+            # hot, activate neighbors so they can propagate heat
             self.activate_neighbors()
 
 class liquid(empty):
@@ -272,13 +274,16 @@ class liquid(empty):
 
     def tick_temp(self):
         if self.temp >= 100:
+            # evaporate
             universe.grid[self.y][self.x] = gas(self.x,self.y)
             universe.grid[self.y][self.x].temp=max(self.temp,150)
         elif self.temp <= 0:
+            # freeze
             universe.grid[self.y][self.x] = ice(self.x,self.y)
             universe.grid[self.y][self.x].temp=min(-10,self.temp)
         else:
             if self.burning:
+                # currently in contact with fire
                 self.burning=False
                 self.temp += 0.1 * (110 - self.temp)
             else:
@@ -345,25 +350,34 @@ class gas(empty):
     def tick(self):
         # global universe
         # universe.active.add((self.x,self.y))
+        
+        # create random directions
         dx,dy = rand_dir(),(-1,-1,1)[randint(0,2)]
         if self.x == (0,universe.width-1,0)[dx]:
+            # dx goes off the screen
             dx=0
         if self.y == (0,universe.height-1,0)[dy]:
+            # dy goes off the screen
             dy=0
         if universe.grid[self.y+dy][self.x+dx].density == -1:
+            # swap with empty
             self.swap(dx,dy)
         elif self.y > 0 \
             and universe.grid[self.y-1][self.x].density >= self.density\
                 and universe.grid[self.y-1][self.x].temp < self.temp:
+                    # attempt to move up
                     self.swap(0,-1)
         else:
+            # nowhere to move, deactivate
             self.deactivate()
     def tick_temp(self):
         if self.temp < 80:
+            # condensate
             universe.grid[self.y][self.x] = liquid(self.x,self.y)
             universe.grid[self.y][self.x].temp=self.temp
             return
         if self.burning:
+            # in contact with fire
             self.burning=False
             self.temp += 0.01 * (500-self.temp)
         else:
@@ -389,6 +403,7 @@ class ice(empty):
         # ice doesn't move
     def tick_temp(self):
         if self.temp > 0:
+            # melt
             replacement=liquid(self.x,self.y)
             replacement.temp=self.temp
             universe.grid[self.y][self.x] = replacement

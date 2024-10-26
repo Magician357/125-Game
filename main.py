@@ -189,6 +189,7 @@ while running:
 
 
     pygame.display.flip()
+    
     pygame.display.set_caption(f"fps: {clock.get_fps():.2f}"+"    "
         +f"cell info: ({i_x},{i_y}), "+
             f"ID {universe.grid[i_y][i_x].name}{universe.grid[i_y][i_x].id}, "+ 
